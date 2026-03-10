@@ -27,7 +27,7 @@ public class UserController {
     // pagination example
     @GetMapping
     public ResponseEntity<List<UserSummaryDTO>> getAllUsers(@RequestParam(required = false, defaultValue = "1") int pageNum,
-                                                            @RequestParam(required = false, defaultValue = "2") int pageSize){
+                                                            @RequestParam(required = false, defaultValue = "3") int pageSize){
         List<UserSummaryDTO> users = userService.findAll(PageRequest.of(pageNum-1, pageSize));
         return ResponseEntity.ok(users);
     }
