@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -62,6 +61,27 @@ public class UserService {
 //                profileDTO,
 //                workoutDTOs
         );
+    }
+
+    public List<UserDTO> getUsersByName(String firstName, String lastName) {
+
+        List<User> users;
+
+        if (firstName != null) {
+            users = userRepository.findByFirstName(firstName);
+        } else if (lastName != null) {
+            users = userRepository.findByLastName(lastName);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "First name or last name required");
+        }
+
+        return users.stream()
+                .map(user -> new UserDTO(
+                        user.getUserId(),
+                        user.getFirstName(),
+                        user.getLastName()
+                ))
+                .toList();
     }
 
     public UserDTO savedUser(UserDTO userDTO){

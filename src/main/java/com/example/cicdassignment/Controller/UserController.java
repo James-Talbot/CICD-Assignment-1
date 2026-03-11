@@ -3,6 +3,7 @@ package com.example.cicdassignment.Controller;
 import com.example.cicdassignment.DTO.UserDTO;
 import com.example.cicdassignment.DTO.UserSummaryDTO;
 import com.example.cicdassignment.Service.UserService;
+import org.apache.coyote.Response;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +27,9 @@ public class UserController {
 
     // pagination example
     @GetMapping
-    public ResponseEntity<List<UserSummaryDTO>> getAllUsers(@RequestParam(required = false, defaultValue = "1") int pageNum,
-                                                            @RequestParam(required = false, defaultValue = "3") int pageSize){
+    public ResponseEntity<List<UserSummaryDTO>> getAllUsers(
+            @RequestParam(required = false, defaultValue = "1") int pageNum,
+            @RequestParam(required = false, defaultValue = "3") int pageSize){
         List<UserSummaryDTO> users = userService.findAll(PageRequest.of(pageNum-1, pageSize));
         return ResponseEntity.ok(users);
     }
@@ -36,6 +38,15 @@ public class UserController {
     public ResponseEntity<UserDTO> getUser(@PathVariable Long id){
         UserDTO userDTO = userService.getUserById(id);
         return ResponseEntity.ok(userDTO);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<UserDTO>> getUsersByName(
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName) {
+
+        List<UserDTO> users = userService.getUsersByName(firstName, lastName);
+        return ResponseEntity.ok(users);
     }
 
 //    @GetMapping("/{id}/workouts")
