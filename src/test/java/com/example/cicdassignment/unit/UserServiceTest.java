@@ -1,5 +1,6 @@
 package com.example.cicdassignment.unit;
 
+import com.example.cicdassignment.DTO.UserDTO;
 import com.example.cicdassignment.DTO.UserSummaryDTO;
 import com.example.cicdassignment.Entity.User;
 import com.example.cicdassignment.Repository.UserRepository;
@@ -16,9 +17,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,10 +31,10 @@ public class UserServiceTest {
     Examples
     getAllUsers
     getAllUsers_WhenNoUserExists
-    saveUser_persistsUser
+    getUserById_returnsUserDTO_whenUserExists
     searchUsersByFirstName_returnsResults
     searchUsersByLastName_returnsResults
-    getUserById_returnsUserDTO_whenUserExists
+    saveUser_persistsUser
     getUserById_throwsException_whenUserNotFound
     deleteUser_removesUser
     */
@@ -65,6 +66,7 @@ public class UserServiceTest {
         assertEquals("Talbot", result.get(0).getLastName());
         assertEquals("Tim", result.get(1).getFirstName());
         assertEquals("Tester", result.get(1).getLastName());
+
         verify(userRepository).findAll(pageable);
     }
 
@@ -81,6 +83,63 @@ public class UserServiceTest {
 
         // then
         assertTrue(result.isEmpty());
+
         verify(userRepository).findAll(pageable);
+    }
+
+    @Test
+    @DisplayName("get user by id")
+    void getUserById_returnsUserDTO_whenUserExists(){
+        // given
+        Long userId = 1L;
+        User user = new User(userId, "James", "Talbot");
+        when(userRepository.findById(userId)).thenReturn(Optional.of((user)));
+
+        // when
+        UserDTO result = userService.getUserById(userId);
+
+        // then
+        assertNotNull(result);
+        assertEquals(userId, result.getUserId());
+        assertEquals("James", result.getFirstName());
+        assertEquals("Talbot", result.getLastName());
+
+        verify(userRepository).findById(userId);
+    }
+
+    @Test
+    @DisplayName("search for user by first name")
+    void searchUsersByFirstName_returnsResults(){
+        // given
+        String firstname = "James";
+        User user = new User(1L, "James", "Talbot");
+        when(userRepository.findByFirstName(firstname)).thenReturn(List.of(user));
+
+        // when
+        List<UserDTO> results = userService.getUsersByName(firstname, null);
+
+        // then
+        assertEquals(1, results.size());
+        assertEquals("James", results.get(0).getFirstName());
+
+        verify(userRepository).findByFirstName(firstname);
+    }
+
+    @Test
+    @DisplayName("search for user by last name")
+    void searchUsersByLastName_returnsResults(){
+        // given
+        String lastname = "Talbot";
+        User user = new User(1L, "James", "Talbot");
+        when(userRepository.findByLastName(lastname)).thenReturn(List.of(user));
+
+        // when
+        List<UserDTO> result = userService.getUsersByName(null, lastname);
+
+        // then
+        assertEquals(1, result.size());
+        assertEquals("Talbot", result.get(0).getLastName());
+
+        verify(userRepository).findByLastName(lastname);
     }
 }
