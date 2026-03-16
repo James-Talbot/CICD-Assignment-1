@@ -8,6 +8,7 @@ import com.example.cicdassignment.Service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -15,11 +16,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,10 +35,10 @@ public class UserServiceTest {
     getAllUsers
     getAllUsers_WhenNoUserExists
     getUserById_returnsUserDTO_whenUserExists
+    getUserById_throwsException_whenUserNotFound
     searchUsersByFirstName_returnsResults
     searchUsersByLastName_returnsResults
     saveUser_persistsUser
-    getUserById_throwsException_whenUserNotFound
     deleteUser_removesUser
     */
 
@@ -108,6 +111,22 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("get user by id - when user doesn't exist")
+    void getUserById_throwsException_whenUserNotFound(){
+        // given
+        Long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // when
+        Executable action = () -> userService.getUserById(userId);
+
+        // then
+        assertThrows(ResponseStatusException.class, action);
+
+        verify(userRepository).findById(userId);
+    }
+
+    @Test
     @DisplayName("search for user by first name")
     void searchUsersByFirstName_returnsResults(){
         // given
@@ -141,5 +160,40 @@ public class UserServiceTest {
         assertEquals("Talbot", result.get(0).getLastName());
 
         verify(userRepository).findByLastName(lastname);
+    }
+
+    @Test
+    @DisplayName("save a user")
+    void saveUser_persistsUser(){
+        // given
+        UserDTO inputDTO = new UserDTO(null, "James", "Talbot");
+        User user = new User(1L, "James", "Talbot");
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        // when
+        UserDTO result = userService.savedUser(inputDTO);
+
+        // then
+        assertNotNull(result);
+        assertEquals(1L, result.getUserId());
+        assertEquals("James", result.getFirstName());
+        assertEquals("Talbot", result.getLastName());
+
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("delete a user")
+    void deleteUser_removesUser(){
+        // given
+        Long userId = 1L;
+        User user = new User(1L, "James", "Talbot");
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // when
+        userService.deleteUser(userId);
+
+        // then
+        verify(userRepository).delete(user);
     }
 }
