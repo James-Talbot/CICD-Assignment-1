@@ -32,7 +32,7 @@ public class UserServiceTest {
     // unit tests using JUnit + Mockito
     /*
     Examples
-    getAllUsers
+    findAll_shouldReturnMappedUserSummaryDTOs
     getAllUsers_WhenNoUserExists
     getUserById_returnsUserDTO_whenUserExists
     getUserById_throwsException_whenUserNotFound
@@ -51,24 +51,26 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("get all users - return list")
-    void getAllUsers(){
-        // given
-        Pageable pageable = PageRequest.of(0, 3);
-        User user1 = new User(1L, "James", "Talbot");
-        User user2 = new User(2L, "Tim", "Tester");
+    void findAll_shouldReturnMappedUserSummaryDTOs() {
+
+        // Given
+        Pageable pageable = PageRequest.of(0, 10);
+
+        User user1 = new User(1L, "John", "Smith");
+        User user2 = new User(2L, "Jane", "Doe");
+
         List<User> users = List.of(user1, user2);
         Page<User> page = new PageImpl<>(users);
+
         when(userRepository.findAll(pageable)).thenReturn(page);
 
-        // when
+        // When
         List<UserSummaryDTO> result = userService.findAll(pageable);
 
-        // then
+        // Then
         assertEquals(2, result.size());
-        assertEquals("James", result.get(0).getFirstName());
-        assertEquals("Talbot", result.get(0).getLastName());
-        assertEquals("Tim", result.get(1).getFirstName());
-        assertEquals("Tester", result.get(1).getLastName());
+        assertEquals("John", result.get(0).getFirstName());
+        assertEquals("Smith", result.get(0).getLastName());
 
         verify(userRepository).findAll(pageable);
     }
