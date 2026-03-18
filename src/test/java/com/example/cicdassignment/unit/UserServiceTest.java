@@ -34,7 +34,6 @@ public class UserServiceTest {
     Examples
     findAll_shouldReturnMappedUserSummaryDTOs
     findAll_shouldReturnEmptyList_whenNoUsersExist
-    getAllUsers_WhenNoUserExists
     getUserById_returnsUserDTO_whenUserExists
     getUserById_throwsException_whenUserNotFound
     searchUsersByFirstName_returnsResults
@@ -84,23 +83,6 @@ public class UserServiceTest {
         Page<User> emptyPage = new PageImpl<>(List.of());
 
         when(userRepository.findAll(pageable)).thenReturn(Page.empty());
-
-        // when
-        List<UserSummaryDTO> result = userService.findAll(pageable);
-
-        // then
-        assertTrue(result.isEmpty());
-
-        verify(userRepository).findAll(pageable);
-    }
-
-    @Test
-    @DisplayName("get all users - when no users exist")
-    void getAllUsers_WhenNoUsersExist(){
-        // given
-        Pageable pageable = PageRequest.of(0, 3);
-        Page<User> emptyPage = new PageImpl<>(List.of());
-        when(userRepository.findAll(pageable)).thenReturn(emptyPage);
 
         // when
         List<UserSummaryDTO> result = userService.findAll(pageable);
