@@ -1,0 +1,19 @@
+name: CD - Deploy with Ansible
+
+on:
+  workflow_run:
+    workflows: ["Java CI with Maven"]   # ← must match the name in ci.yaml exactly
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}  # ← only runs if ci.yaml passed
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Ansible
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ansible
