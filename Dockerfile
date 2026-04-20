@@ -13,7 +13,6 @@ RUN ./mvnw -B package --file pom.xml
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-ARG JAR_VERSION=0.0.1-SNAPSHOT
 COPY --from=build /app/target/CICDAssignment-${JAR_VERSION}.jar app.jar
 
 EXPOSE 8080
