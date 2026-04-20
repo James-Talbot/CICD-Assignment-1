@@ -1,0 +1,6 @@
+---
+- name: Deploy CICD Assignment
+  hosts: remote
+  become: true
+  roles:
+    - deploy
