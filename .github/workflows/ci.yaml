@@ -23,6 +23,11 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
+    - name: Update IMAGE_VERSION secret
+      run: gh secret set IMAGE_VERSION --body "${{ steps.get_version.outputs.VERSION }}"
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
       with:

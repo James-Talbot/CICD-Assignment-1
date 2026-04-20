@@ -42,7 +42,7 @@ jobs:
       run: docker rm cicd-assignment || true
 
     - name: Pull latest image
-      run: docker pull ${{ secrets.DOCKER_USERNAME }}/cicd-assignment:latest
+      run: docker pull ${{ secrets.DOCKER_USERNAME }}/cicd-assignment:${{ secrets.IMAGE_VERSION }}
 
     - name: Run container
       run: |
@@ -50,4 +50,4 @@ jobs:
           --name cicd-assignment \
           -p 8080:8080 \
           --restart always \
-          ${{ secrets.DOCKER_USERNAME }}/cicd-assignment:latest
+          ${{ secrets.DOCKER_USERNAME }}/cicd-assignment:${{ secrets.IMAGE_VERSION }}
