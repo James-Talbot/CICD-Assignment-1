@@ -24,7 +24,9 @@ jobs:
 
   docker-build:
     runs-on: ubuntu-latest
+    needs: mvn-build
     steps:
+    - uses: actions/checkout@v4
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
