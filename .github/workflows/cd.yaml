@@ -1,19 +1,53 @@
-name: CD - Deploy with Ansible
+# name: CD - Deploy with Ansible
+
+# on:
+#   workflow_run:
+#     workflows: ["Java CI with Maven"]   # ← must match the name in ci.yaml exactly
+#     types:
+#       - completed
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     if: ${{ github.event.workflow_run.conclusion == 'success' }}  # ← only runs if ci.yaml passed
+#     steps:
+#     - uses: actions/checkout@v4
+
+#     - name: Install Ansible
+#       run: |
+#         sudo apt-get update
+#         sudo apt-get install -y ansible
+
+
+name: CD - Deploy with Docker
 
 on:
   workflow_run:
-    workflows: ["Java CI with Maven"]   # ← must match the name in ci.yaml exactly
+    workflows: ["Java CI with Maven"]
     types:
       - completed
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}  # ← only runs if ci.yaml passed
+    runs-on: self-hosted
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-    - uses: actions/checkout@v4
+    - name: Log in to Docker Hub
+      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_TOKEN }}
 
-    - name: Install Ansible
+    - name: Stop existing container
+      run: docker stop cicd-assignment || true
+
+    - name: Remove existing container
+      run: docker rm cicd-assignment || true
+
+    - name: Pull latest image
+      run: docker pull ${{ secrets.DOCKER_USERNAME }}/cicd-assignment:latest
+
+    - name: Run container
       run: |
-        sudo apt-get update
-        sudo apt-get install -y ansible
+        docker run -d \
+          --name cicd-assignment \
+          -p 8080:8080 \
+          --restart always \
+          ${{ secrets.DOCKER_USERNAME }}/cicd-assignment:latest
