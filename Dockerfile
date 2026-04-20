@@ -14,7 +14,7 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 ARG JAR_VERSION
-COPY --from=build /app/target/CICDAssignment-${JAR_VERSION}.jar app.jar
+COPY --from=build /app/target/CICDAssignment-*.jar app.jar
 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
