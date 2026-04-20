@@ -6,7 +6,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  mvn-build:
 
     runs-on: ubuntu-latest
 
@@ -21,6 +21,10 @@ jobs:
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
